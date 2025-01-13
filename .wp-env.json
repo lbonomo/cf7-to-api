@@ -1,7 +1,7 @@
 {
     "plugins": [
         ".",
-        "WordPress/contact-form-7"
+        "https://downloads.wordpress.org/plugin/contact-form-7.6.0.2.zip"
     ],
     "config": {
         "WP_DEBUG": true,
