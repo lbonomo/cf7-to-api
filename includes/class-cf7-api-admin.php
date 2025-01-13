@@ -1,4 +1,7 @@
 <?php
+/**
+ * @package  QS_CF7_API
+ */
 
 
 // If this file is called directly, abort.
@@ -20,7 +23,7 @@ class QS_CF7_api_admin{
    * @var [QS_Admin_notices]
    */
   private $admin_notices;
-
+  public $plugin_name;
   /**
    * PLugn is active or not
    */
@@ -32,8 +35,6 @@ class QS_CF7_api_admin{
   private $api_errors;
 
   public function __construct(){
-
-    $this->textdomain = 'qs-cf7-api';
 
     $this->admin_notices = new QS_Admin_notices();
 

@@ -1,4 +1,7 @@
 <?php
+/**
+ * @package  QS_CF7_API
+ */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -11,7 +14,8 @@ class QS_Admin_notices{
      * @var [type]
      */
     private $notices;
-
+	public $notices_options = array();
+	
     /**
      * The main class construcator
      */
@@ -20,6 +24,7 @@ class QS_Admin_notices{
         $this->register_hooks();
 
         $this->get_plugin_options();
+		
 
     }
 

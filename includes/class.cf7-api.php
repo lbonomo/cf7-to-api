@@ -1,4 +1,7 @@
 <?php
+/**
+ * @package  QS_CF7_API
+ */
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
@@ -42,6 +45,9 @@ class QS_CF7_atp_integration{
      * @var      object    $admin    an instance of the admin class.
      */
     private $woocommerce_is_active;
+
+	public $version;
+	public $plugin_basename;
     /**
 	 * Define the plugin functionality.
 	 *
@@ -70,8 +76,9 @@ class QS_CF7_atp_integration{
 
      }
      public function init(){
-         
+         error_log('init');
      }
+
      /**
       * Loads the required plugin files
       * @return [type] [description]
