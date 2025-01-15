@@ -3,7 +3,6 @@
  * @package  QS_CF7_API
  */
 
-
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
 	die;
@@ -30,6 +29,8 @@ class QS_CF7_api_admin {
 	 * PLugn is active or not
 	 */
 	private $plugin_active;
+
+	public $textdomain = 'qs-cf7-api';
 	/**
 	 * API errors array
 	 *
@@ -38,11 +39,8 @@ class QS_CF7_api_admin {
 	private $api_errors;
 
 	public function __construct() {
-
 		$this->admin_notices = new QS_Admin_notices();
-
 		$this->api_errors = array();
-
 		$this->register_hooks();
 	}
 	/**

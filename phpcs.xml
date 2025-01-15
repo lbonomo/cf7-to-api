@@ -10,16 +10,26 @@
 	<config name="testVersion" value="7.4"/>
 
 	<!-- 2. Files -->
-	<file>./</file>
-
+	<file>.</file>
 	<!-- Exclude -->
 	<exclude-pattern>/vendor/*</exclude-pattern>
 	<exclude-pattern>/node_modules/*</exclude-pattern>
 
-	<rule ref="WordPress"/>
+	<rule ref="WordPress">
+		<exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
+		<exclude name="PEAR.NamingConventions.ValidClassName.Invalid"/>
+	</rule>
+
+
+
 	<rule ref="WordPress-Core"/>
 	<rule ref="WordPress-Docs"/>
 	<rule ref="WordPress-Extra"/>
-	<rule ref="Security"/>
+	<rule ref="Security">
+		<!-- This warns that functions like dirname (__FILE__) use dynamic parameters -->
+		<exclude name ="PHPCS_SecurityAudit.BadFunctions.FilesystemFunctions.WarnFilesystem"/>
+		<!-- this warns that there are functions that support callbacks -->
+		<exclude name ="PHPCS_SecurityAudit.BadFunctions.CallbackFunctions.WarnCallbackFunctions"/>
+	</rule>
 
 </ruleset>

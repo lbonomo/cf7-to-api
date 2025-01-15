@@ -10,7 +10,7 @@
  * Plugin Name:       Contact form 7 to api + Basic auth
  * Plugin URI:        https://github.com/kennym/cf7-to-api
  * Description:       Connect contact forms 7 to remote API using GET or POST.
- * Version:           1.4.11
+ * Version:           1.5.0
  * Author:            Kenny Meyer
  * Author URI:          https://www.kennymeyer.net
  * License:           GPL-2.0+
@@ -18,11 +18,11 @@
  * Text Domain:       qs-cf7-api
  * Domain Path:       /languages
  */
+
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
 	die;
 }
-
 
 define( 'QS_CF7_API_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 define( 'QS_CF7_API_INCLUDES_PATH', plugin_dir_path( __FILE__ ) . 'includes/' );
@@ -42,10 +42,11 @@ add_action( 'plugins_loaded', 'qs_cf7_textdomain' );
 function qs_cf7_textdomain() {
 	load_plugin_textdomain( 'qs-cf7-api', false, basename( __DIR__ ) . '/languages' );
 }
+
 /**
  * The core plugin class
  */
-require_once QS_CF7_API_INCLUDES_PATH . 'class.cf7-api.php';
+require_once QS_CF7_API_INCLUDES_PATH . 'class-cf7-api.php';
 
 /**
  * Activation and deactivation hooks
@@ -53,14 +54,20 @@ require_once QS_CF7_API_INCLUDES_PATH . 'class.cf7-api.php';
 register_activation_hook( __FILE__, 'cf7_api_activation_handler' );
 register_deactivation_hook( __FILE__, 'cf7_api_deactivation_handler' );
 
-
+/**
+ * Excecute activation hooks
+ */
 function cf7_api_activation_handler() {
 	do_action( 'cf7_api_activated' );
 }
 
+/**
+ * Excecute deactivation hooks
+ */
 function cf7_api_deactivation_handler() {
 	do_action( 'cf7_api_deactivated' );
 }
+
 /**
  * Begins execution of the plugin.
  *
@@ -72,10 +79,9 @@ function qs_init_cf7_api() {
 	global $qs_cf7_api;
 
 	$qs_cf7_api                  = new QS_CF7_atp_integration();
-	$qs_cf7_api->version         = '1.1.1';
+	$qs_cf7_api->version         = '1.5.0';
 	$qs_cf7_api->plugin_basename = plugin_basename( __FILE__ );
-
-	$qs_cf7_api->init();
+	// $qs_cf7_api->init(); // la funcion init no hace nada.
 }
 
 qs_init_cf7_api();

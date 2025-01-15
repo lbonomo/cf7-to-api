@@ -1,5 +1,9 @@
 <?php
 /**
+ * Class CF7_API
+ *
+ * This class handles the integration between Contact Form 7 and an external API.
+ *
  * @package  QS_CF7_API
  */
 
@@ -8,6 +12,10 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
+
+/**
+ * The main plugin class.
+ */
 class QS_CF7_atp_integration {
 
 	/**
@@ -20,7 +28,7 @@ class QS_CF7_atp_integration {
 	protected $plugin_name;
 
 	/**
-	 * save the instance of the plugin for static actions.
+	 * Save the instance of the plugin for static actions.
 	 *
 	 * @since    1.0.0
 	 * @access   protected
@@ -29,7 +37,7 @@ class QS_CF7_atp_integration {
 	public static $instance;
 
 	/**
-	 * a reference to the admin class.
+	 * A reference to the admin class.
 	 *
 	 * @since    1.0.0
 	 * @access   protected
@@ -38,7 +46,7 @@ class QS_CF7_atp_integration {
 	public $admin;
 
 	/**
-	 * a reference to the plugin status .
+	 * A reference to the plugin status .
 	 *
 	 * @since    1.0.0
 	 * @access   protected
@@ -46,18 +54,31 @@ class QS_CF7_atp_integration {
 	 */
 	private $woocommerce_is_active;
 
+	/**
+	 * The plugin version.
+	 *
+	 * @access   public
+	 * @var      string    $version    the plugin version.
+	 */
 	public $version;
+
+	/**
+	 * The plugin basename.
+	 *
+	 * @access   public
+	 * @var      string    $plugin_basename    the plugin basename.
+	 */
 	public $plugin_basename;
+
 	/**
 	 * Define the plugin functionality.
 	 *
-	 * set plugin name and version , and load dependencies
+	 * Set plugin name and version , and load dependencies
 	 *
 	 * @since    1.0.0
 	 */
 	public function __construct() {
 		$this->plugin_name = 'wc-cf7-api-form';
-
 		$this->load_dependencies();
 
 		/**
@@ -69,40 +90,40 @@ class QS_CF7_atp_integration {
 		$this->admin->plugin_name = $this->plugin_name;
 
 		/**
-		 * save the instance for static actions
+		 * Save the instance for static actions
 		 */
 		self::$instance = $this;
-	}
-	public function init() {
-		error_log( 'init' );
 	}
 
 	/**
 	 * Loads the required plugin files
 	 *
-	 * @return [type] [description]
+	 * @return void
 	 */
 	public function load_dependencies() {
 		/**
 		* General global plugin functions
 		*/
-		require_once QS_CF7_API_INCLUDES_PATH . 'class.cf7-helpers.php';
+		require_once QS_CF7_API_INCLUDES_PATH . 'class-cf7-helpers.php';
+
 		/**
-		* admin notices class
+		* Admin notices class
 		*/
-		require_once QS_CF7_API_INCLUDES_PATH . 'class.qs-admin-notices.php';
+		require_once QS_CF7_API_INCLUDES_PATH . 'class-qs-admin-notices.php';
+
 		/**
-		* admin notices clclass
+		* Admin notices clclass
 		*/
 		require_once QS_CF7_API_INCLUDES_PATH . 'class-cf7-api-admin.php';
 	}
+
 	/**
 	 * Get the current plugin instance
 	 *
-	 * @return [type] [description]
+	 * @return QS_CF7_atp_integration
 	 */
 	public static function get_instance() {
-		if ( self::$instance === null ) {
+		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
 		return self::$instance;

@@ -76,6 +76,11 @@ For example:
 
 Changelog
 ---------
+
+### 1.5.0
+-   Support WordPress v6.7.1
+-   Support Contact Form 7 v7.6.0.3
+
 ### 1.4.11
 
 -   Support to new CF7 version
