@@ -10,8 +10,11 @@
 	<config name="testVersion" value="7.4"/>
 
 	<!-- 2. Files -->
-	<file>./src/</file>
-	<file>./simple-interactive-blocks.php</file>
+	<file>./</file>
+
+	<!-- Exclude -->
+	<exclude-pattern>/vendor/*</exclude-pattern>
+	<exclude-pattern>/node_modules/*</exclude-pattern>
 
 	<rule ref="WordPress"/>
 	<rule ref="WordPress-Core"/>
