@@ -2,7 +2,7 @@
 /**
  * Class helpers
  *
- * @version     1.0
+ * @package QS_CF7_API
  */
 
 // If this file is called directly, abort.
@@ -10,13 +10,19 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
+/**
+ * Class QS_CF7_helpers
+ *
+ * A helper class for managing template parts in the CF7 to API plugin.
+ */
 class QS_CF7_helpers {
+
 	/**
 	 * Get template part function that will get the required templates files
 	 *
-	 * @param  [string] $slug [the file slug]
-	 * @param  string   $name [the name of the tempate]
-	 * @version     1.0
+	 * @param  string $slug [the file slug].
+	 * @param  string $name [the name of the tempate].
+	 * @return void
 	 */
 	public static function qs_get_template_part( $slug, $name = '' ) {
 		$template = '';

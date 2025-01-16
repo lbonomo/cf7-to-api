@@ -18,9 +18,8 @@
 	<rule ref="WordPress">
 		<exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
 		<exclude name="PEAR.NamingConventions.ValidClassName.Invalid"/>
+		<exclude name="WordPress.WP.I18n.NonSingularStringLiteralDomain"/>
 	</rule>
-
-
 
 	<rule ref="WordPress-Core"/>
 	<rule ref="WordPress-Docs"/>

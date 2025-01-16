@@ -81,7 +81,6 @@ function qs_init_cf7_api() {
 	$qs_cf7_api                  = new QS_CF7_atp_integration();
 	$qs_cf7_api->version         = '1.5.0';
 	$qs_cf7_api->plugin_basename = plugin_basename( __FILE__ );
-	// $qs_cf7_api->init(); // la funcion init no hace nada.
 }
 
 qs_init_cf7_api();
