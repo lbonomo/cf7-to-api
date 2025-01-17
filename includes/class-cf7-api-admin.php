@@ -483,8 +483,8 @@ endif;
 			if ( 'json' === $record_type ) {
 				$qs_cf7_data_template = $qs_cf7_data_json_template;
 			}
-			$record = $this->get_record( $submission, $qs_cf7_data_map, $record_type, $template = $qs_cf7_data_template );
 
+			$record = $this->get_record( $submission, $qs_cf7_data_map, $record_type, $template = $qs_cf7_data_template );
 			$record['url'] = $qs_cf7_data['base_url'];
 
 			if ( isset( $record['url'] ) && $record['url'] ) {
@@ -493,26 +493,44 @@ endif;
 
 				$response         = $this->send_lead( $record, $qs_cf7_data['debug_log'], $qs_cf7_data['method'], $record_type, $qs_cf7_data['basic_auth'], $qs_cf7_data['bearer_auth'] );
 				$override_message = isset( $qs_cf7_data['override_message'] ) && 'on' === $qs_cf7_data['override_message'];
-
+				$message = false;
+				
 				if ( is_wp_error( $response ) ) {
-					if ( $override_message ) {
-						$submission->set_response( $response->get_error_message() );
-					}
+					$message = 'Something went wrong';
 					$this->log_error( $response, $wpcf7_contactform->id() );
-				} else {
-					if ( $override_message ) {
-						$body_string = wp_remote_retrieve_body( $response );
+				}
+				
+				// Unauthorized
+				if ( array_key_exists('response', $response) && array_key_exists( 'code', $response['response'] ) ) {
+						$code = $response['response']['code'];
+				}
 
+				switch ($code) {
+					case '401':
+						$message = 'Unauthorized: pleas check auth settings';
+						break;
+					case '400':
+						$message = 'One or more validation errors occurred.';
+						break;
+					default:
+						$body_string = wp_remote_retrieve_body( $response );
 						$body = json_decode( $body_string );
 						if ( 0 === json_last_error() ) {
-							$submission->set_response( $body->message );
+							// If get a 'message', send it, if not send CF7 message
+							$this->logger(__LINE__, $body_string );
+							$message = property_exists($body, 'message') ? $body->message : false;
 						} else {
-							$submission->set_response( $body_string );
+							// wpcf7-message-mail-sent-ng
+							$this->logger(__LINE__, $body_string );
+							$message = false;
 						}
-					}
-
-					do_action( 'qs_cf7_api_after_sent_to_api', $record, $response );
+						break;
 				}
+
+				if ( $override_message && $message ) {
+					$submission->set_response( $message );
+				}
+				do_action( 'qs_cf7_api_after_sent_to_api', $record, $response );
 			}
 		}
 	}
@@ -538,6 +556,44 @@ endif;
 	 */
 	public function clear_error_log( $post_id ) {
 		delete_post_meta( $post_id, 'api_errors' );
+	}
+
+
+	/**
+	 * Print log. file_name[line_number]: message
+	 * 
+	 * @param integer $line Line number.
+	 * @param mixer $message Text, object or array to log.
+	 * @return void
+	 */
+	public function logger( $line, $message ) {
+		if ( true === WP_DEBUG ) {
+			$tamplate = "%s[%d]: %s";
+			switch ( gettype($message) ) {
+				case 'integer':
+				case 'string':
+					error_log(
+						sprintf( $tamplate, __FILE__, $line, $message )
+					);
+					break;
+				case 'object':
+				case 'array':
+					error_log(
+						sprintf( $tamplate, __FILE__, $line, print_r($message, true)
+						)
+					);
+					break;
+				case 'boolean':
+					$message = $message ? 'true' : 'false';
+					error_log(
+						sprintf( $tamplate, __FILE__, $line, print_r($message, true) )
+					);
+					break;
+				default:
+					error_log(sprintf( "Type: %s", gettype($message)));
+					break;
+			}
+		}
 	}
 
 	/**
@@ -679,105 +735,90 @@ endif;
 	private function send_lead( $record, $debug = false, $method = 'GET', $record_type = 'params', $basic_auth = null, $bearer_auth = null ) {
 		global $wp_version;
 
-		$lead = $record['fields'];
+		// API query template.
+		$lead = wp_unslash( $record['fields'] );
 		$url  = $record['url'];
+		$args = array(
+			'timeout'     => 5,
+			'redirection' => 5,
+			'httpversion' => '1.0',
+			'user-agent'  => 'WordPress/' . $wp_version . '; ' . home_url(),
+			'blocking'    => true,
+			'headers'     => array(),
+			'cookies'     => array(),
+			'body'        => null,
+			'compress'    => false,
+			'decompress'  => true,
+			'sslverify'   => true,
+			'stream'      => false,
+			'filename'    => null,
+		);
 
-		if ( 'GET' === $method && ( 'params' === $record_type || 'json' === $record_type ) ) {
-			$args = array(
-				'timeout'     => 5,
-				'redirection' => 5,
-				'httpversion' => '1.0',
-				'user-agent'  => 'WordPress/' . $wp_version . '; ' . home_url(),
-				'blocking'    => true,
-				'headers'     => array(),
-				'cookies'     => array(),
-				'body'        => null,
-				'compress'    => false,
-				'decompress'  => true,
-				'sslverify'   => true,
-				'stream'      => false,
-				'filename'    => null,
-			);
+		switch ($method) {
+			case 'GET':
+				if ( 'params' === $record_type || 'json' === $record_type ) {
+					if ( 'json' === $record_type ) {
+						$args['headers']['Content-Type'] = 'application/json';
+						$json = $this->parse_json( $lead );
+						if ( is_wp_error( $json ) ) {
+							return $json;
+						} else {
+							$args['body'] = $json;
+						}
+					} else {
+							$lead_string = http_build_query( $lead );
+		
+							$url = strpos( '?', $url ) ? $url . '&' . $lead_string : $url . '?' . $lead_string;
+					}
+					$args = apply_filters( 'qs_cf7_api_get_args', $args );
+					$url = apply_filters( 'qs_cf7_api_get_url', $url, $record );
+					$result = wp_remote_get( $url, $args );
+				} 
+				break;
+			
+			case 'POST':
+				if ( 'params' === $record_type || 'json' === $record_type ) {
+					$args['body'] = $lead;
 
-			if ( 'json' === $record_type ) {
+					// Basic auth.
+					if ( isset( $basic_auth ) && '' !== $basic_auth ) {
+						$args['headers']['Authorization'] = 'Basic ' . base64_encode( $basic_auth ); //phpcs:ignore
+					}
 
-				$args['headers']['Content-Type'] = 'application/json';
+					// Bearer auth.
+					if ( isset( $bearer_auth ) && '' !== $bearer_auth ) {
+						$args['headers']['Authorization'] = 'Bearer ' . $bearer_auth;
+					}
 
-				$json = $this->parse_json( $lead );
+					if ( 'xml' === $record_type ) {
+						$args['headers']['Content-Type'] = 'text/xml';
+						$xml = $this->get_xml( $lead );
+						if ( is_wp_error( $xml ) ) {
+							return $xml;
+						}
+						$args['body'] = $xml->asXML();
+					}
 
-				if ( is_wp_error( $json ) ) {
-					return $json;
-				} else {
-					$args['body'] = $json;
+					if ( 'json' === $record_type ) {
+						$args['headers']['Content-Type'] = 'application/json';
+						$json = $this->parse_json( $lead );
+						$this->logger( __LINE__, $lead );
+						if ( is_wp_error( $json ) ) {
+							return $json;
+						} else {
+							$args['body'] = $json;
+						}
+					}
+		
+					$args = apply_filters( 'qs_cf7_api_get_args', $args );
+					$url = apply_filters( 'qs_cf7_api_post_url', $url );
+					$result = wp_remote_post( $url, $args );
+					// $this->logger( __LINE__, $result );
 				}
-			} else {
-					$lead_string = http_build_query( $lead );
-
-					$url = strpos( '?', $url ) ? $url . '&' . $lead_string : $url . '?' . $lead_string;
-			}
-
-			$args = apply_filters( 'qs_cf7_api_get_args', $args );
-
-			$url = apply_filters( 'qs_cf7_api_get_url', $url, $record );
-
-			$result = wp_remote_get( $url, $args );
-
-		} else {
-			$args = array(
-				'timeout'     => 5,
-				'redirection' => 5,
-				'httpversion' => '1.0',
-				'user-agent'  => 'WordPress/' . $wp_version . '; ' . home_url(),
-				'blocking'    => true,
-				'headers'     => array(),
-				'cookies'     => array(),
-				'body'        => $lead,
-				'compress'    => false,
-				'decompress'  => true,
-				'sslverify'   => true,
-				'stream'      => false,
-				'filename'    => null,
-			);
-
-			if ( isset( $basic_auth ) && '' !== $basic_auth ) {
-				$args['headers']['Authorization'] = 'Basic ' . base64_encode( $basic_auth ); //phpcs:ignore
-			}
-
-			if ( isset( $bearer_auth ) && '' !== $bearer_auth ) {
-				$args['headers']['Authorization'] = 'Bearer ' . $bearer_auth;
-			}
-
-			if ( 'xml' === $record_type ) {
-
-				$args['headers']['Content-Type'] = 'text/xml';
-
-				$xml = $this->get_xml( $lead );
-
-				if ( is_wp_error( $xml ) ) {
-					return $xml;
-				}
-
-				$args['body'] = $xml->asXML();
-
-			} elseif ( 'json' === $record_type ) {
-
-				$args['headers']['Content-Type'] = 'application/json';
-
-				$json = $this->parse_json( $lead );
-
-				if ( is_wp_error( $json ) ) {
-					return $json;
-				} else {
-					$args['body'] = $json;
-				}
-			}
-
-			$args = apply_filters( 'qs_cf7_api_get_args', $args );
-
-			$url = apply_filters( 'qs_cf7_api_post_url', $url );
-
-			$result = wp_remote_post( $url, $args );
-
+				break;
+			default:
+				# code...
+				break;
 		}
 
 		if ( $debug ) {
@@ -798,7 +839,6 @@ endif;
 	 * @return string|WP_Error The encoded JSON string if valid, or a WP_Error object if invalid.
 	 */
 	private function parse_json( $text ) {
-
 		$json = json_decode( $text );
 
 		if ( json_last_error() === JSON_ERROR_NONE ) {
