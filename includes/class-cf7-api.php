@@ -105,7 +105,7 @@ class QS_CF7_atp_integration {
 		* General global plugin functions
 		*/
 		// TODO: Que hace?
-		// require_once QS_CF7_API_INCLUDES_PATH . 'class-cf7-helpers.php'; // phpcs:ignore
+		// require_once QS_CF7_API_INCLUDES_PATH . 'class-cf7-helpers.php';.
 
 		/**
 		* Admin notices class

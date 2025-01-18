@@ -484,7 +484,7 @@ endif;
 				$qs_cf7_data_template = $qs_cf7_data_json_template;
 			}
 
-			$record = $this->get_record( $submission, $qs_cf7_data_map, $record_type, $template = $qs_cf7_data_template );
+			$record        = $this->get_record( $submission, $qs_cf7_data_map, $record_type, $template = $qs_cf7_data_template );
 			$record['url'] = $qs_cf7_data['base_url'];
 
 			if ( isset( $record['url'] ) && $record['url'] ) {
@@ -493,19 +493,19 @@ endif;
 
 				$response         = $this->send_lead( $record, $qs_cf7_data['debug_log'], $qs_cf7_data['method'], $record_type, $qs_cf7_data['basic_auth'], $qs_cf7_data['bearer_auth'] );
 				$override_message = isset( $qs_cf7_data['override_message'] ) && 'on' === $qs_cf7_data['override_message'];
-				$message = false;
-				
+				$message          = false;
+
 				if ( is_wp_error( $response ) ) {
 					$message = 'Something went wrong';
 					$this->log_error( $response, $wpcf7_contactform->id() );
 				}
-				
-				// Unauthorized
-				if ( array_key_exists('response', $response) && array_key_exists( 'code', $response['response'] ) ) {
-						$code = $response['response']['code'];
+
+				// Unauthorized.
+				if ( array_key_exists( 'response', $response ) && array_key_exists( 'code', $response['response'] ) ) {
+					$code = $response['response']['code'];
 				}
 
-				switch ($code) {
+				switch ( $code ) {
 					case '401':
 						$message = 'Unauthorized: pleas check auth settings';
 						break;
@@ -514,14 +514,14 @@ endif;
 						break;
 					default:
 						$body_string = wp_remote_retrieve_body( $response );
-						$body = json_decode( $body_string );
+						$body        = json_decode( $body_string );
 						if ( 0 === json_last_error() ) {
-							// If get a 'message', send it, if not send CF7 message
-							$this->logger(__LINE__, $body_string );
-							$message = property_exists($body, 'message') ? $body->message : false;
+							// If get a 'message', send it, if not send CF7 message.
+							$this->logger( __LINE__, $body_string );
+							$message = property_exists( $body, 'message' ) ? $body->message : false;
 						} else {
-							// wpcf7-message-mail-sent-ng
-							$this->logger(__LINE__, $body_string );
+							// TODO: wpcf7-message-mail-sent-ng.
+							$this->logger( __LINE__, $body_string );
 							$message = false;
 						}
 						break;
@@ -558,39 +558,32 @@ endif;
 		delete_post_meta( $post_id, 'api_errors' );
 	}
 
-
 	/**
 	 * Print log. file_name[line_number]: message
-	 * 
+	 *
 	 * @param integer $line Line number.
-	 * @param mixer $message Text, object or array to log.
+	 * @param mixer   $message Text, object or array to log.
 	 * @return void
 	 */
 	public function logger( $line, $message ) {
 		if ( true === WP_DEBUG ) {
-			$tamplate = "%s[%d]: %s";
-			switch ( gettype($message) ) {
+			$tamplate = '%s[%d]: %s';
+			switch ( gettype( $message ) ) {
 				case 'integer':
 				case 'string':
-					error_log(
-						sprintf( $tamplate, __FILE__, $line, $message )
-					);
+					error_log( sprintf( $tamplate, __FILE__, $line, $message ) ); //phpcs:ignore
 					break;
 				case 'object':
 				case 'array':
-					error_log(
-						sprintf( $tamplate, __FILE__, $line, print_r($message, true)
-						)
+					error_log( sprintf( $tamplate, __FILE__, $line, print_r( $message, true ) )  //phpcs:ignore
 					);
 					break;
 				case 'boolean':
 					$message = $message ? 'true' : 'false';
-					error_log(
-						sprintf( $tamplate, __FILE__, $line, print_r($message, true) )
-					);
+					error_log( sprintf( $tamplate, __FILE__, $line, print_r( $message, true ) ) ); //phpcs:ignore
 					break;
 				default:
-					error_log(sprintf( "Type: %s", gettype($message)));
+					error_log(sprintf( "Type: %s", gettype( $message ) ) ); //phpcs:ignore
 					break;
 			}
 		}
@@ -754,12 +747,12 @@ endif;
 			'filename'    => null,
 		);
 
-		switch ($method) {
+		switch ( $method ) {
 			case 'GET':
 				if ( 'params' === $record_type || 'json' === $record_type ) {
 					if ( 'json' === $record_type ) {
 						$args['headers']['Content-Type'] = 'application/json';
-						$json = $this->parse_json( $lead );
+						$json                            = $this->parse_json( $lead );
 						if ( is_wp_error( $json ) ) {
 							return $json;
 						} else {
@@ -767,15 +760,15 @@ endif;
 						}
 					} else {
 							$lead_string = http_build_query( $lead );
-		
+
 							$url = strpos( '?', $url ) ? $url . '&' . $lead_string : $url . '?' . $lead_string;
 					}
-					$args = apply_filters( 'qs_cf7_api_get_args', $args );
-					$url = apply_filters( 'qs_cf7_api_get_url', $url, $record );
+					$args   = apply_filters( 'qs_cf7_api_get_args', $args );
+					$url    = apply_filters( 'qs_cf7_api_get_url', $url, $record );
 					$result = wp_remote_get( $url, $args );
-				} 
+				}
 				break;
-			
+
 			case 'POST':
 				if ( 'params' === $record_type || 'json' === $record_type ) {
 					$args['body'] = $lead;
@@ -792,7 +785,7 @@ endif;
 
 					if ( 'xml' === $record_type ) {
 						$args['headers']['Content-Type'] = 'text/xml';
-						$xml = $this->get_xml( $lead );
+						$xml                             = $this->get_xml( $lead );
 						if ( is_wp_error( $xml ) ) {
 							return $xml;
 						}
@@ -801,7 +794,7 @@ endif;
 
 					if ( 'json' === $record_type ) {
 						$args['headers']['Content-Type'] = 'application/json';
-						$json = $this->parse_json( $lead );
+						$json                            = $this->parse_json( $lead );
 						$this->logger( __LINE__, $lead );
 						if ( is_wp_error( $json ) ) {
 							return $json;
@@ -809,15 +802,15 @@ endif;
 							$args['body'] = $json;
 						}
 					}
-		
-					$args = apply_filters( 'qs_cf7_api_get_args', $args );
-					$url = apply_filters( 'qs_cf7_api_post_url', $url );
+
+					$args   = apply_filters( 'qs_cf7_api_get_args', $args );
+					$url    = apply_filters( 'qs_cf7_api_post_url', $url );
 					$result = wp_remote_post( $url, $args );
-					// $this->logger( __LINE__, $result );
 				}
 				break;
 			default:
-				# code...
+				$message = "Method not supported ($method)";
+				$this->logger( __LINE__, $message );
 				break;
 		}
 
