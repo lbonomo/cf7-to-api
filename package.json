@@ -1,23 +1,25 @@
 {
-  "name": "cf7-to-api",
-  "version": "1.0.0",
-  "main": "index.js",
+	"name": "cf7-to-api",
+	"version": "1.0.0",
+	"main": "index.js",
 	"scripts": {
-		"build": "wp-scripts build --experimental-modules",
-		"format": "wp-scripts format",
-		"lint:css": "wp-scripts lint-style",
-		"lint:js": "wp-scripts lint-js",
-		"packages-update": "wp-scripts packages-update",
+		"scripts": "wp-scripts",
 		"plugin-zip": "wp-scripts plugin-zip",
-		"start": "wp-scripts start --experimental-modules",
 		"env": "wp-env",
 		"log": "tail -f $(npm --silent run env install-path 2> /dev/null)/WordPress/wp-content/debug.log"
 	},
-  "author": "",
-  "license": "ISC",
-  "description": "",
-  "devDependencies": {
-    "@wordpress/env": "^10.15.0",
-    "@wordpress/scripts": "^30.8.1"
-  }
+	"author": "",
+	"license": "ISC",
+	"description": "",
+	"devDependencies": {
+		"@wordpress/env": "^10.15.0",
+		"@wordpress/scripts": "^30.8.1"
+	},
+	"files": [
+		"index.php",
+		"contact-form-7-api.php",
+		"readme.txt",
+		"/assets/*",
+		"/includes/*"
+	]
 }
