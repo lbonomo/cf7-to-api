@@ -7,6 +7,8 @@
  * @package QS_CF7_API
  */
 
+namespace Includes;
+
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
 	die;
@@ -755,12 +757,10 @@ endif;
 						$json                            = $this->parse_json( $lead );
 						if ( is_wp_error( $json ) ) {
 							return $json;
-						} else {
-							$args['body'] = $json;
 						}
+						$args['body'] = $json;
 					} else {
 							$lead_string = http_build_query( $lead );
-
 							$url = strpos( '?', $url ) ? $url . '&' . $lead_string : $url . '?' . $lead_string;
 					}
 					$args   = apply_filters( 'qs_cf7_api_get_args', $args );
@@ -798,9 +798,8 @@ endif;
 						$this->logger( __LINE__, $lead );
 						if ( is_wp_error( $json ) ) {
 							return $json;
-						} else {
-							$args['body'] = $json;
 						}
+						$args['body'] = $json;
 					}
 
 					$args   = apply_filters( 'qs_cf7_api_get_args', $args );

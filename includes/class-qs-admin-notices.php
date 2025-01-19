@@ -7,6 +7,8 @@
  * @package CF7_to_API
  */
 
+namespace Includes;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -87,7 +89,7 @@ class QS_Admin_notices {
 			$this->notices_options['dismiss_notices'][ $id ] = true;
 			$this->update_plugin_options();
 		}
-		die( 'updated' );
+		wp_die( 'updated' );
 	}
 
 	/**

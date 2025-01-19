@@ -47,6 +47,7 @@ function qs_cf7_textdomain() {
  * The core plugin class
  */
 require_once QS_CF7_API_INCLUDES_PATH . 'class-cf7-api.php';
+use Includes;
 
 /**
  * Activation and deactivation hooks
@@ -78,7 +79,7 @@ function cf7_api_deactivation_handler() {
 function qs_init_cf7_api() {
 	global $qs_cf7_api;
 
-	$qs_cf7_api                  = new QS_CF7_atp_integration();
+	$qs_cf7_api                  = new Includes\QS_CF7_atp_integration();
 	$qs_cf7_api->version         = '1.5.0';
 	$qs_cf7_api->plugin_basename = plugin_basename( __FILE__ );
 }

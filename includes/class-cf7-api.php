@@ -7,6 +7,8 @@
  * @package  QS_CF7_API
  */
 
+namespace Includes;
+
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
 	die;
@@ -44,15 +46,6 @@ class QS_CF7_atp_integration {
 	 * @var      object
 	 */
 	public $admin;
-
-	/**
-	 * A reference to the plugin status .
-	 *
-	 * @since    1.0.0
-	 * @access   protected
-	 * @var      object    $admin    an instance of the admin class.
-	 */
-	private $woocommerce_is_active;
 
 	/**
 	 * The plugin version.
